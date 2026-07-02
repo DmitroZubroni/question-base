@@ -1,17 +1,387 @@
 [
-  {"q":"Что такое IoC (Inversion of Control)?","opts":["Паттерн проектирования для сортировки","Принцип: управление созданием объектов и зависимостями передаётся контейнеру","Механизм обработки исключений","Способ логирования"],"a":1,"exp":"IoC — инверсия управления. Вместо того чтобы объект сам создавал зависимости (new UserRepository()), Spring создаёт и внедряет их."},
-  {"q":"Что такое @SpringBootApplication?","opts":["Аннотация для REST-контроллеров","Мета-аннотация: @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan","Аннотация для конфигурации БД","Аннотация для тестов"],"a":1,"exp":"@SpringBootApplication объединяет три аннотации. @EnableAutoConfiguration — автонастройка по classpath. @ComponentScan — сканирование компонентов."},
-  {"q":"Что делает @Transactional?","opts":["Помечает класс как компонент","Оборачивает метод в транзакцию через AOP-прокси","Синхронизирует доступ к методу","Кэширует результат метода"],"a":1,"exp":"Spring создаёт AOP-прокси: перед вызовом открывает транзакцию, после успеха — commit, при RuntimeException — rollback."},
-  {"q":"Какие способы внедрения зависимостей есть в Spring?","opts":["Только через конструктор","Конструктор, setter, поле (@Autowired)","Только через setter","Только через XML"],"a":1,"exp":"Spring поддерживает: constructor injection (рекомендуемый), setter injection, field injection (@Autowired на поле). Constructor injection лучше — неизменяемые зависимости, проще тестировать."},
-  {"q":"Что такое Bean Scope 'singleton' в Spring?","opts":["Новый экземпляр при каждом запросе","Один экземпляр на весь ApplicationContext (по умолчанию)","Один экземпляр на HTTP-сессию","Один экземпляр на поток"],"a":1,"exp":"Singleton (по умолчанию) — один бин на контекст. Остальные scopes: prototype (новый при каждом запросе бина), request, session, application."},
-  {"q":"Как работает Spring Security аутентификация?","opts":["Только через JWT","Filter chain перехватывает запрос → AuthenticationManager → UserDetailsService → SecurityContext","Только через сессии","Через аннотацию @Secure"],"a":1,"exp":"Запрос проходит через FilterChain. UsernamePasswordAuthenticationFilter извлекает credentials, AuthenticationManager проверяет через UserDetailsService, результат сохраняется в SecurityContextHolder."},
-  {"q":"Что такое Spring Data JPA Repository?","opts":["Класс для работы с файлами","Интерфейс с автогенерацией SQL по имени метода","Инструмент миграции БД","Кэш второго уровня"],"a":1,"exp":"Spring Data JPA генерирует реализацию: findByEmail() → SELECT * FROM ... WHERE email = ?. Поддерживает @Query для сложных запросов, Pageable, Slice."},
-  {"q":"Что такое N+1 проблема в JPA?","opts":["Ошибка при 11 связях","Загрузка N дочерних сущностей N отдельными запросами вместо одного JOIN","Ограничение на количество колонок","Проблема с транзакциями"],"a":1,"exp":"N+1: загружаем 1 список orders (1 запрос), затем для каждого order — отдельный запрос за customer (N запросов). Решение: JOIN FETCH или @EntityGraph."},
-  {"q":"Что такое AOP (Aspect-Oriented Programming) в Spring?","opts":["Асинхронное программирование","Разделение сквозной функциональности (логирование, транзакции) от бизнес-логики через прокси","Аспектный анализ кода","Параллельное выполнение"],"a":1,"exp":"AOP выделяет cross-cutting concerns: @Transactional, @Cacheable, @Scheduled, @Async — всё реализовано через AOP-прокси (JDK Dynamic Proxy или CGLIB)."},
-  {"q":"Чем отличается @Controller от @RestController?","opts":["Нет разницы","@RestController = @Controller + @ResponseBody на каждом методе","@Controller для REST, @RestController для MVC","@RestController поддерживает только JSON"],"a":1,"exp":"@RestController добавляет @ResponseBody ко всем методам — возвращаемый объект сериализуется напрямую в тело ответа (JSON/XML) без поиска view."},
-  {"q":"Что такое @Cacheable?","opts":["Аннотация для Redis","Кэширует результат метода по ключу; повторный вызов с теми же аргументами возвращает кэш","Сохраняет данные в БД","Логирует вызовы метода"],"a":1,"exp":"@Cacheable(value='users', key='#id') — первый вызов выполняет метод и кэширует результат. Повторный вызов с тем же id возвращает из кэша без выполнения метода."},
-  {"q":"Что такое 'lazy loading' в Hibernate?","opts":["Ленивая инициализация контекста Spring","Связанные сущности загружаются только при первом обращении к ним","Отложенный коммит транзакции","Кэширование запросов"],"a":1,"exp":"FetchType.LAZY — proxy-объект вместо реальной сущности. Загрузка происходит при первом обращении к полю. Может вызвать LazyInitializationException вне транзакции."},
-  {"q":"Что такое propagation в @Transactional?","opts":["Скорость распространения транзакции","Поведение при вызове транзакционного метода из другого транзакционного метода","Настройка уровня изоляции","Настройка rollback"],"a":1,"exp":"REQUIRED (по умолчанию) — присоединяется к существующей или создаёт новую. REQUIRES_NEW — всегда новая. NESTED — вложенная через savepoint. MANDATORY — только если есть активная."},
-  {"q":"Что такое @Value в Spring?","opts":["Аннотация для валидации","Внедряет значение из application.properties или SpEL в поле/параметр","Устанавливает дефолтное значение в БД","Аннотация для Lombok"],"a":1,"exp":"@Value(\"${server.port}\") — берёт из properties. @Value(\"#{systemProperties['user.home']}\") — SpEL выражение. Можно задать дефолт: @Value(\"${timeout:5000}\")."},
-  {"q":"Как Spring Boot определяет что автонастроить?","opts":["По аннотациям в коде","По наличию классов/зависимостей в classpath через условия @ConditionalOnClass","Читает XML конфигурацию","По имени пакета"],"a":1,"exp":"Auto-configuration использует @ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty. Если есть HikariCP в classpath — автонастраивается DataSource."}
+  {
+    "q": "Что такое IoC (Inversion of Control)?",
+    "opts": [
+      "Паттерн проектирования для сортировки",
+      "Принцип: управление созданием объектов и зависимостями передаётся контейнеру",
+      "Механизм обработки исключений",
+      "Способ логирования"
+    ],
+    "a": 1,
+    "exp": "IoC — инверсия управления. Вместо того чтобы объект сам создавал зависимости (new UserRepository()), Spring создаёт и внедряет их."
+  },
+  {
+    "q": "Что такое @SpringBootApplication?",
+    "opts": [
+      "Аннотация для REST-контроллеров",
+      "Мета-аннотация: @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan",
+      "Аннотация для конфигурации БД",
+      "Аннотация для тестов"
+    ],
+    "a": 1,
+    "exp": "@SpringBootApplication объединяет три аннотации. @EnableAutoConfiguration — автонастройка по classpath. @ComponentScan — сканирование компонентов."
+  },
+  {
+    "q": "Что делает @Transactional?",
+    "opts": [
+      "Помечает класс как компонент",
+      "Оборачивает метод в транзакцию через AOP-прокси",
+      "Синхронизирует доступ к методу",
+      "Кэширует результат метода"
+    ],
+    "a": 1,
+    "exp": "Spring создаёт AOP-прокси: перед вызовом открывает транзакцию, после успеха — commit, при RuntimeException — rollback."
+  },
+  {
+    "q": "Какие способы внедрения зависимостей есть в Spring?",
+    "opts": [
+      "Только через конструктор",
+      "Конструктор, setter, поле (@Autowired)",
+      "Только через setter",
+      "Только через XML"
+    ],
+    "a": 1,
+    "exp": "Spring поддерживает: constructor injection (рекомендуемый), setter injection, field injection (@Autowired на поле). Constructor injection лучше — неизменяемые зависимости, проще тестировать."
+  },
+  {
+    "q": "Что такое Bean Scope 'singleton' в Spring?",
+    "opts": [
+      "Новый экземпляр при каждом запросе",
+      "Один экземпляр на весь ApplicationContext (по умолчанию)",
+      "Один экземпляр на HTTP-сессию",
+      "Один экземпляр на поток"
+    ],
+    "a": 1,
+    "exp": "Singleton (по умолчанию) — один бин на контекст. Остальные scopes: prototype (новый при каждом запросе бина), request, session, application."
+  },
+  {
+    "q": "Как работает Spring Security аутентификация?",
+    "opts": [
+      "Только через JWT",
+      "Filter chain перехватывает запрос → AuthenticationManager → UserDetailsService → SecurityContext",
+      "Только через сессии",
+      "Через аннотацию @Secure"
+    ],
+    "a": 1,
+    "exp": "Запрос проходит через FilterChain. UsernamePasswordAuthenticationFilter извлекает credentials, AuthenticationManager проверяет через UserDetailsService, результат сохраняется в SecurityContextHolder."
+  },
+  {
+    "q": "Что такое Spring Data JPA Repository?",
+    "opts": [
+      "Класс для работы с файлами",
+      "Интерфейс с автогенерацией SQL по имени метода",
+      "Инструмент миграции БД",
+      "Кэш второго уровня"
+    ],
+    "a": 1,
+    "exp": "Spring Data JPA генерирует реализацию: findByEmail() → SELECT * FROM ... WHERE email = ?. Поддерживает @Query для сложных запросов, Pageable, Slice."
+  },
+  {
+    "q": "Что такое N+1 проблема в JPA?",
+    "opts": [
+      "Ошибка при 11 связях",
+      "Загрузка N дочерних сущностей N отдельными запросами вместо одного JOIN",
+      "Ограничение на количество колонок",
+      "Проблема с транзакциями"
+    ],
+    "a": 1,
+    "exp": "N+1: загружаем 1 список orders (1 запрос), затем для каждого order — отдельный запрос за customer (N запросов). Решение: JOIN FETCH или @EntityGraph."
+  },
+  {
+    "q": "Что такое AOP (Aspect-Oriented Programming) в Spring?",
+    "opts": [
+      "Асинхронное программирование",
+      "Разделение сквозной функциональности (логирование, транзакции) от бизнес-логики через прокси",
+      "Аспектный анализ кода",
+      "Параллельное выполнение"
+    ],
+    "a": 1,
+    "exp": "AOP выделяет cross-cutting concerns: @Transactional, @Cacheable, @Scheduled, @Async — всё реализовано через AOP-прокси (JDK Dynamic Proxy или CGLIB)."
+  },
+  {
+    "q": "Чем отличается @Controller от @RestController?",
+    "opts": [
+      "Нет разницы",
+      "@RestController = @Controller + @ResponseBody на каждом методе",
+      "@Controller для REST, @RestController для MVC",
+      "@RestController поддерживает только JSON"
+    ],
+    "a": 1,
+    "exp": "@RestController добавляет @ResponseBody ко всем методам — возвращаемый объект сериализуется напрямую в тело ответа (JSON/XML) без поиска view."
+  },
+  {
+    "q": "Что такое @Cacheable?",
+    "opts": [
+      "Аннотация для Redis",
+      "Кэширует результат метода по ключу; повторный вызов с теми же аргументами возвращает кэш",
+      "Сохраняет данные в БД",
+      "Логирует вызовы метода"
+    ],
+    "a": 1,
+    "exp": "@Cacheable(value='users', key='#id') — первый вызов выполняет метод и кэширует результат. Повторный вызов с тем же id возвращает из кэша без выполнения метода."
+  },
+  {
+    "q": "Что такое 'lazy loading' в Hibernate?",
+    "opts": [
+      "Ленивая инициализация контекста Spring",
+      "Связанные сущности загружаются только при первом обращении к ним",
+      "Отложенный коммит транзакции",
+      "Кэширование запросов"
+    ],
+    "a": 1,
+    "exp": "FetchType.LAZY — proxy-объект вместо реальной сущности. Загрузка происходит при первом обращении к полю. Может вызвать LazyInitializationException вне транзакции."
+  },
+  {
+    "q": "Что такое propagation в @Transactional?",
+    "opts": [
+      "Скорость распространения транзакции",
+      "Поведение при вызове транзакционного метода из другого транзакционного метода",
+      "Настройка уровня изоляции",
+      "Настройка rollback"
+    ],
+    "a": 1,
+    "exp": "REQUIRED (по умолчанию) — присоединяется к существующей или создаёт новую. REQUIRES_NEW — всегда новая. NESTED — вложенная через savepoint. MANDATORY — только если есть активная."
+  },
+  {
+    "q": "Что такое @Value в Spring?",
+    "opts": [
+      "Аннотация для валидации",
+      "Внедряет значение из application.properties или SpEL в поле/параметр",
+      "Устанавливает дефолтное значение в БД",
+      "Аннотация для Lombok"
+    ],
+    "a": 1,
+    "exp": "@Value(\"${server.port}\") — берёт из properties. @Value(\"#{systemProperties['user.home']}\") — SpEL выражение. Можно задать дефолт: @Value(\"${timeout:5000}\")."
+  },
+  {
+    "q": "Как Spring Boot определяет что автонастроить?",
+    "opts": [
+      "По аннотациям в коде",
+      "По наличию классов/зависимостей в classpath через условия @ConditionalOnClass",
+      "Читает XML конфигурацию",
+      "По имени пакета"
+    ],
+    "a": 1,
+    "exp": "Auto-configuration использует @ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty. Если есть HikariCP в classpath — автонастраивается DataSource."
+  },
+  {
+    "q": "Что такое ApplicationContext и чем отличается от BeanFactory?",
+    "opts": [
+      "ApplicationContext расширяет BeanFactory: добавляет events, i18n, AOP, eager init; BeanFactory — базовый lazy контейнер",
+      "BeanFactory мощнее ApplicationContext",
+      "Они идентичны, ApplicationContext устарел",
+      "BeanFactory только для unit-тестов"
+    ],
+    "a": 0,
+    "exp": "BeanFactory — базовый IoC контейнер, lazy init, минимум функций. ApplicationContext наследует BeanFactory + публикует события (ApplicationEvent), поддерживает MessageSource, AOP, инициализирует синглтоны при старте. На практике всегда используют ApplicationContext."
+  },
+  {
+    "q": "Что делает @PostConstruct и @PreDestroy?",
+    "opts": [
+      "@PostConstruct вызывается после инъекции зависимостей; @PreDestroy — перед уничтожением бина",
+      "@PostConstruct заменяет конструктор",
+      "@PreDestroy только для прототипных бинов",
+      "Они вызываются только в Spring Boot"
+    ],
+    "a": 0,
+    "exp": "@PostConstruct: вызывается один раз после того как Spring создал бин и внедрил зависимости — для инициализации. @PreDestroy: вызывается перед уничтожением синглтона при остановке контекста — для освобождения ресурсов."
+  },
+  {
+    "q": "Что такое @Async в Spring?",
+    "opts": [
+      "Метод выполняется в отдельном потоке из TaskExecutor не блокируя вызывающий поток",
+      "Метод кешируется при первом вызове",
+      "Метод выполняется через очередь сообщений",
+      "Отложенный запуск метода по расписанию"
+    ],
+    "a": 0,
+    "exp": "@EnableAsync + @Async: Spring проксирует бин, вызов метода возвращается немедленно, выполнение идёт в пуле потоков. Возвращаемый тип — void, Future<T> или CompletableFuture<T>. Не работает при self-invocation (вызов внутри того же класса)."
+  },
+  {
+    "q": "Что такое @Scheduled в Spring?",
+    "opts": [
+      "Аннотация для запуска метода по расписанию: cron, fixedRate, fixedDelay",
+      "Планировщик транзакций",
+      "Метод вызываемый при загрузке контекста",
+      "Аннотация для асинхронного выполнения"
+    ],
+    "a": 0,
+    "exp": "@EnableScheduling + @Scheduled(cron='0 0 * * * *') или fixedRate=5000 (каждые 5с) или fixedDelay=5000 (5с после окончания). Выполняется в single-threaded Executor по умолчанию — долгая задача блокирует другие."
+  },
+  {
+    "q": "Что такое Spring Profiles?",
+    "opts": [
+      "Механизм активации разных конфигураций/бинов для разных окружений (dev, test, prod)",
+      "Профили производительности для мониторинга",
+      "Разные версии API",
+      "Конфигурация безопасности для ролей"
+    ],
+    "a": 0,
+    "exp": "@Profile('dev') на бине/конфигурации — активируется только при активном профиле dev. Активация: spring.profiles.active=dev в application.properties или переменная окружения. application-dev.properties автоматически подгружается при активном профиле dev."
+  },
+  {
+    "q": "Что такое Spring Boot Actuator?",
+    "opts": [
+      "Набор production-ready эндпоинтов для мониторинга: health, metrics, info, env, beans",
+      "Инструмент для автоматического обновления зависимостей",
+      "Встроенный profiler для оптимизации",
+      "Планировщик задач Spring Boot"
+    ],
+    "a": 0,
+    "exp": "Actuator: /actuator/health (состояние приложения), /actuator/metrics (метрики), /actuator/env (переменные среды), /actuator/beans (все бины). Интегрируется с Micrometer → Prometheus/Grafana. Эндпоинты настраиваются и защищаются."
+  },
+  {
+    "q": "Что такое @ConditionalOnProperty?",
+    "opts": [
+      "Бин создаётся только если указанное свойство имеет нужное значение",
+      "Бин зависит от другого бина",
+      "Условная инъекция зависимости",
+      "Аннотация для тестовых конфигураций"
+    ],
+    "a": 0,
+    "exp": "@ConditionalOnProperty(name='feature.enabled', havingValue='true') — бин регистрируется только если feature.enabled=true. Используется в auto-configuration для условной активации функционала. Основа Spring Boot auto-configure механизма."
+  },
+  {
+    "q": "Что такое Spring Events?",
+    "opts": [
+      "Механизм публикации и подписки на события внутри ApplicationContext",
+      "Kafka/RabbitMQ интеграция",
+      "Мониторинг событий жизненного цикла бинов",
+      "WebSocket события"
+    ],
+    "a": 0,
+    "exp": "@EventListener или ApplicationListener<MyEvent>: компонент публикует ApplicationEventPublisher.publishEvent(new MyEvent()), подписчики вызываются синхронно в том же потоке. @Async над @EventListener делает обработку асинхронной. Decoupling без брокера."
+  },
+  {
+    "q": "Что такое @EntityGraph в Spring Data JPA?",
+    "opts": [
+      "Аннотация указывающая какие связи загрузить eager для конкретного запроса, избегая N+1",
+      "Аннотация для создания индексов",
+      "Описание связей между сущностями",
+      "Граф зависимостей между репозиториями"
+    ],
+    "a": 0,
+    "exp": "@EntityGraph(attributePaths={'orders', 'orders.items'}) на методе репозитория делает указанные lazy-ассоциации eager только для этого запроса. Решает N+1 проблему без FETCH JOIN в JPQL. Более декларативно и удобно."
+  },
+  {
+    "q": "Что такое Spring WebFlux?",
+    "opts": [
+      "Реактивный веб-фреймворк на Project Reactor для неблокирующей обработки запросов",
+      "Улучшенная версия Spring MVC",
+      "Фреймворк для WebSocket приложений",
+      "Замена Spring Boot для микросервисов"
+    ],
+    "a": 0,
+    "exp": "WebFlux: неблокирующий, реактивный стек на Netty или Servlet 3.1+. Mono<T> — 0-1 элемент, Flux<T> — 0-N. Эффективен при высоком параллелизме и IO-bound операциях. Не заменяет Spring MVC — выбирай исходя из требований."
+  },
+  {
+    "q": "Что такое @Modifying в Spring Data JPA?",
+    "opts": [
+      "Аннотация для UPDATE/DELETE JPQL запросов в репозитории, требует @Transactional",
+      "Аннотация для оптимистической блокировки",
+      "Маркер для изменяемых Entity полей",
+      "Включает dirty checking для Entity"
+    ],
+    "a": 0,
+    "exp": "@Modifying + @Query('UPDATE User u SET u.active = false WHERE u.id = :id') — для DML запросов в репозитории. Без @Modifying Spring Data выбросит исключение. @Transactional обязателен. clearAutomatically=true сбрасывает persistence context."
+  },
+  {
+    "q": "Что такое DTO проекции в Spring Data JPA?",
+    "opts": [
+      "Interface или class-based проекции для выбора только нужных полей без загрузки всей Entity",
+      "Маппинг между Entity и таблицей",
+      "Аннотация для полей исключаемых из запроса",
+      "Кеширование частей Entity"
+    ],
+    "a": 0,
+    "exp": "Interface projection: interface UserSummary { String getName(); String getEmail(); }. Spring Data генерирует прокси, SELECT только нужных колонок. Class-based (DTO constructor expression): new UserDto(u.name, u.email). Эффективнее загрузки полной Entity."
+  },
+  {
+    "q": "Что такое Hibernate Second Level Cache?",
+    "opts": [
+      "Кеш на уровне SessionFactory (между сессиями) для снижения запросов к БД",
+      "Кеш внутри одной транзакции",
+      "Кеш запросов в Spring @Cacheable",
+      "L2 кеш только для read-only таблиц"
+    ],
+    "a": 0,
+    "exp": "L1 кеш (первый уровень) — уровень Session/EntityManager, в рамках одной транзакции. L2 кеш — разделяется между сессиями (EhCache, Redis). @Cacheable(region='users') на Entity. Снижает нагрузку на БД при повторных чтениях одних и тех же объектов."
+  },
+  {
+    "q": "Что такое @Version в Hibernate?",
+    "opts": [
+      "Поле для оптимистической блокировки — Hibernate проверяет версию при UPDATE",
+      "Поле для хранения версии API",
+      "Аннотация для аудита изменений Entity",
+      "Версионирование схемы таблицы"
+    ],
+    "a": 0,
+    "exp": "@Version на поле (int, Long, Timestamp): при каждом UPDATE Hibernate добавляет WHERE version = :oldVersion и инкрементирует version. Если другая транзакция уже изменила запись — version не совпадёт → OptimisticLockException."
+  },
+  {
+    "q": "Что такое Spring Security FilterChain?",
+    "opts": [
+      "Цепочка фильтров обрабатывающих каждый HTTP запрос для аутентификации и авторизации",
+      "Список разрешённых URL паттернов",
+      "Цепочка middleware для логирования",
+      "Фильтры для валидации входных данных"
+    ],
+    "a": 0,
+    "exp": "Spring Security встраивает DelegatingFilterProxy в Servlet FilterChain. Внутри — SecurityFilterChain с фильтрами: UsernamePasswordAuthenticationFilter, JwtAuthFilter, ExceptionTranslationFilter, FilterSecurityInterceptor. Каждый запрос проходит через все фильтры."
+  },
+  {
+    "q": "Что такое @Transactional(readOnly = true)?",
+    "opts": [
+      "Оптимизация для read-only транзакций: Hibernate не flush, JDBC driver может оптимизировать",
+      "Запрет на чтение данных вне транзакции",
+      "Блокировка таблицы от изменений другими",
+      "Транзакция без начала — каждый запрос отдельно"
+    ],
+    "a": 0,
+    "exp": "readOnly=true: Spring устанавливает флаг read-only на соединении, Hibernate отключает dirty checking и flush — меньше накладных расходов. СУБД может маршрутизировать запрос на read-replica. Используй для всех сервисов только с чтением."
+  },
+  {
+    "q": "Что такое BeanDefinition?",
+    "opts": [
+      "Метаданные описывающие как создать бин: класс, scope, инициализация, зависимости",
+      "Конфигурационный XML файл",
+      "Аннотация для регистрации бина",
+      "Интерфейс для реализации бизнес-логики"
+    ],
+    "a": 0,
+    "exp": "BeanDefinition хранит: beanClassName, scope (singleton/prototype), initMethodName, destroyMethodName, constructor arguments, property values. ApplicationContext читает @Configuration/@Component и создаёт BeanDefinition перед инстанциацией бинов."
+  },
+  {
+    "q": "Что такое Spring Boot DevTools?",
+    "opts": [
+      "Инструмент для быстрой перезагрузки приложения при изменении кода без полного рестарта",
+      "Набор инструментов для тестирования",
+      "Плагин для генерации кода",
+      "Профайлер производительности Spring"
+    ],
+    "a": 0,
+    "exp": "DevTools: автоматический restart при изменении classpath (через два ClassLoader — base и restart), LiveReload для браузера, отключение кеширования шаблонов. Перезапуск значительно быстрее полного старта так как base ClassLoader не пересоздаётся."
+  },
+  {
+    "q": "Что такое @SpringBootTest vs @WebMvcTest?",
+    "opts": [
+      "@SpringBootTest загружает полный контекст; @WebMvcTest только слой MVC без Service/Repository",
+      "@WebMvcTest запускает реальный сервер",
+      "@SpringBootTest только для unit-тестов",
+      "Они идентичны с разным именованием"
+    ],
+    "a": 0,
+    "exp": "@SpringBootTest: полный ApplicationContext, все бины, можно тестировать интеграцию. @WebMvcTest(MyController.class): только MVC слой (Controller, Filter, MockMvc), сервисы мокируются через @MockBean. @WebMvcTest быстрее для тестирования контроллеров."
+  },
+  {
+    "q": "Что такое Flyway/Liquibase в Spring Boot?",
+    "opts": [
+      "Инструменты миграции схемы БД: версионируют SQL изменения и применяют их автоматически при старте",
+      "Инструменты для генерации Entity из схемы",
+      "ORM альтернатива Hibernate",
+      "Инструменты для бэкапа БД"
+    ],
+    "a": 0,
+    "exp": "Flyway: SQL файлы V1__init.sql, V2__add_column.sql применяются в порядке версий, history хранится в flyway_schema_history. Liquibase: XML/YAML changesets. Оба автоматически запускаются при старте Spring Boot. Критически важны для командной разработки."
+  }
 ]
